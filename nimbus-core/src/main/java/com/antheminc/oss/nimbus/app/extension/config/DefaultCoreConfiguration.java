@@ -16,6 +16,7 @@
 package com.antheminc.oss.nimbus.app.extension.config;
 
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.HashMap;
@@ -177,4 +178,8 @@ public class DefaultCoreConfiguration {
 		};
 	}
 	
+	@Bean(name = "auditingDateTimeProvider")
+	public DateTimeProvider dateTimeProvider() {
+	    return () -> Optional.of(OffsetDateTime.now());
+	}
 }

@@ -28,7 +28,6 @@ import com.antheminc.oss.nimbus.domain.cmd.exec.ExecutionContextLoader;
 import com.antheminc.oss.nimbus.domain.cmd.exec.ExecutionContextPathVariableResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.DefaultActionExecutorConfig;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.DefaultActionExecutorDelete;
-import com.antheminc.oss.nimbus.domain.cmd.exec.internal.FunctionExecutor;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.DefaultActionExecutorGet;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.DefaultActionExecutorNav;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.DefaultActionExecutorNew;
@@ -45,8 +44,6 @@ import com.antheminc.oss.nimbus.domain.cmd.exec.internal.HierarchyMatchBasedBean
 import com.antheminc.oss.nimbus.domain.model.state.repo.db.DBSearch;
 import com.antheminc.oss.nimbus.domain.model.state.repo.db.MongoSearchByExample;
 import com.antheminc.oss.nimbus.domain.model.state.repo.db.MongoSearchByQuery;
-import com.antheminc.oss.nimbus.support.expr.ExpressionEvaluator;
-import com.antheminc.oss.nimbus.support.expr.SpelExpressionEvaluator;
 
 /**
  * @author Sandeep Mantha
@@ -54,11 +51,6 @@ import com.antheminc.oss.nimbus.support.expr.SpelExpressionEvaluator;
  */
 @Configuration
 public class DefaultCoreExecutorConfig {
-	
-	@Bean
-	public ExpressionEvaluator expressionEvaluator() {
-		return new SpelExpressionEvaluator();
-	}
 	
 	@Bean
 	public CommandMessageConverter commandMessageConverter(BeanResolverStrategy beanResolver) {

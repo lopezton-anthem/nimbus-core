@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,7 +86,7 @@ public class S6_NestedColDomainUpdateTest extends AbstractFrameworkIntegrationTe
 		assertTrue(S6C_CoreMain.class.isInstance(actual));
 		
 		S6C_CoreMain actual_core = (S6C_CoreMain)actual;
-		ZonedDateTime actualUpdatedTime = actual_core.getLastModifiedDate();
+		LocalDateTime actualUpdatedTime = actual_core.getLastModifiedDate();
 		try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
@@ -104,7 +105,7 @@ public class S6_NestedColDomainUpdateTest extends AbstractFrameworkIntegrationTe
 		assertTrue(S6C_CoreMain.class.isInstance(s6_core_output));
 		
 		S6C_CoreMain s6_core = (S6C_CoreMain)s6_core_output;
-		ZonedDateTime s6_core_updatedtime = s6_core.getLastModifiedDate();
+		LocalDateTime s6_core_updatedtime = s6_core.getLastModifiedDate();
 		
 		assertEquals(actual_core.getAttr(),s6_core.getAttr());
 		assertEquals(actual_core.getAttr_list_s6_nested().size(),s6_core.getAttr_list_s6_nested().size());

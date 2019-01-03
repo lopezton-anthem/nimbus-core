@@ -16,7 +16,7 @@
 package com.antheminc.oss.nimbus.entity;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.springframework.data.annotation.CreatedBy;
@@ -70,13 +70,13 @@ public abstract class AbstractEntity<ID extends Serializable> implements Seriali
 	private String createdBy;
 	
     @Setter @CreatedDate
-	private ZonedDateTime createdDate;
+	private LocalDateTime createdDate;
 	
     @Setter @LastModifiedBy
 	private String lastModifiedBy;
 	
     @Setter @LastModifiedDate
-	private ZonedDateTime lastModifiedDate;
+	private LocalDateTime lastModifiedDate;
 	
     //@Version
 	@Setter private long version;

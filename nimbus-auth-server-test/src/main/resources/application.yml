@@ -17,15 +17,20 @@ spring:
     view:
       prefix: /
       suffix: .jsp
+      
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8891/auth-server/token_keys
+          
 server:
   port: 8891
-  session:
-    timeout: 1800
-  context-path: /auth-server
+  servlet:
+    session:
+      timeout: 1800
+    context-path: /auth-server
   use-forward-headers: true
-management:
-  security:
-    enabled:  false
 
 info:
  name: auth-server
@@ -36,6 +41,11 @@ logging:
   
   level:
     reactor.io.net.impl.netty.tcp: ERROR
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } [%X{SESSIONID:- }] --- [%t] %-40.40logger{39} : %replace(%replace(%m){'\n', ''}){'\r', ''} %n${LOG_EXCEPTION_CONVERSION_WORD: %wEx}"  
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } [%X{SESSIONID:- }] --- [%t] %-40.40logger{39} : %replace(%replace(%m){'\n', ''}){'\r', ''} %n${LOG_EXCEPTION_CONVERSION_WORD: %wEx}"
@@ -121,7 +131,7 @@ platform:
   config:
     secure:
       regex: "^[a-zA-Z0-9<>()\\[\\]@/: &.=?,$#_-]{1,1000}"
-      
+          
 auth-server:   
  userInfoUri: /**/me
  jwt:

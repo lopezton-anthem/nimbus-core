@@ -29,6 +29,7 @@ import org.bson.Document;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.repository.support.QuerydslAbstractMongodbQuery;
 import org.springframework.data.mongodb.repository.support.SpringDataMongodbQuery;
 import org.springframework.data.querydsl.SimpleEntityPathResolver;
 
@@ -41,7 +42,6 @@ import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.PathBuilder;
-import com.querydsl.mongodb.AbstractMongodbQuery;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -65,13 +65,13 @@ public class MongoSearchByQuery extends MongoDBSearch {
 	@RequiredArgsConstructor
 	class QueryBuilder {
 		
-		private final AbstractMongodbQuery query;
+		private final SpringDataMongodbQuery query;
 		
 		public QueryBuilder(MongoOperations mongoOps, Class<?> clazz, String collectionName) {
-			query = new SpringDataMongodbQuery<>(mongoOps, clazz, collectionName);
+			query = new SpringDataMongodbQuery(mongoOps, clazz, collectionName);
 		}
 		
-		public AbstractMongodbQuery get() {
+		public SpringDataMongodbQuery get() {
 			return query;
 		}
 		
@@ -131,7 +131,7 @@ public class MongoSearchByQuery extends MongoDBSearch {
 	private <T> Object searchByQuery(Class<?> referredClass, String alias, SearchCriteria<T> criteria) {
 		Class<?> outputClass = findOutputClass(criteria, referredClass);
 		
-		AbstractMongodbQuery query = new QueryBuilder(getMongoOps(), outputClass, alias)
+		SpringDataMongodbQuery query = new QueryBuilder(getMongoOps(), outputClass, alias)
 										.buildPredicate((String)criteria.getWhere(), referredClass, alias)
 										.buildOrderBy((String)criteria.getOrderby(), referredClass, alias)
 										.get();
@@ -143,19 +143,19 @@ public class MongoSearchByQuery extends MongoDBSearch {
 		}
 		
 		if(StringUtils.isNotBlank(criteria.getFetch())) {
-			return query.fetchOne(projectionPaths);
+			return query.fetchOne();
 		}
 
 		if(criteria.getPageRequest() != null) {
 			return findAllPageable(referredClass, alias, criteria.getPageRequest(), query, projectionPaths);
 		}
 		
-		return query.fetch(projectionPaths);
+		return query.fetch();
 		
 	}
 
-	private PageRequestAndRespone<Object> findAllPageable(Class<?> referredClass, String alias, Pageable pageRequest, AbstractMongodbQuery query, PathBuilder[] projectionPaths) {
-		AbstractMongodbQuery qPage = query.offset(pageRequest.getOffset()).limit(pageRequest.getPageSize());
+	private PageRequestAndRespone<Object> findAllPageable(Class<?> referredClass, String alias, Pageable pageRequest, SpringDataMongodbQuery query, PathBuilder[] projectionPaths) {
+		SpringDataMongodbQuery qPage = (SpringDataMongodbQuery) query.offset(pageRequest.getOffset()).limit(pageRequest.getPageSize());
 		
 		if(pageRequest.getSort() != null){
 			PathBuilder<?> entityPath = new PathBuilder(referredClass, alias);
@@ -164,10 +164,10 @@ public class MongoSearchByQuery extends MongoDBSearch {
 			    qPage.orderBy(new OrderSpecifier(com.querydsl.core.types.Order.valueOf(order.getDirection().name().toUpperCase()), path));
 			}
 		}
-		return new PageRequestAndRespone<Object>(qPage.fetchResults(projectionPaths).getResults(), pageRequest, () -> query.fetchCount());
+		return new PageRequestAndRespone<Object>(qPage.fetchResults().getResults(), pageRequest, () -> query.fetchCount());
 	}
 	
-	private PathBuilder[] buildProjectionPathBuilder(Class<?> referredClass, SearchCriteria criteria, AbstractMongodbQuery query) {
+	private PathBuilder[] buildProjectionPathBuilder(Class<?> referredClass, SearchCriteria criteria, SpringDataMongodbQuery query) {
 		List<PathBuilder> paths = new ArrayList<>();
 		if(criteria.getProjectCriteria() != null && !MapUtils.isEmpty(criteria.getProjectCriteria().getMapsTo())) {
 			Collection<String> fields = criteria.getProjectCriteria().getMapsTo().values();
