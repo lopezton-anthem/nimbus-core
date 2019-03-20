@@ -27,7 +27,7 @@ import com.antheminc.oss.nimbus.FrameworkRuntimeException;
 import com.antheminc.oss.nimbus.context.BeanResolverStrategy;
 import com.antheminc.oss.nimbus.converter.DefaultFileImportGateway;
 import com.antheminc.oss.nimbus.converter.FileImportGateway;
-import com.antheminc.oss.nimbus.converter.FileImporter;
+import com.antheminc.oss.nimbus.converter.Importer;
 import com.antheminc.oss.nimbus.domain.cmd.Action;
 import com.antheminc.oss.nimbus.domain.cmd.Command;
 import com.antheminc.oss.nimbus.domain.cmd.CommandBuilder;
@@ -81,7 +81,7 @@ public class WebCommandDispatcher {
 
 		try {
 			String ext = FilenameUtils.getExtension(file.getName());
-			FileImporter importer = getFileImportGateway().getFileImporter(ext);
+			Importer importer = getFileImportGateway().getFileImporter(ext);
 			if (null == importer) {
 				throw new UnsupportedOperationException("Upload for file types of \"" + ext +"\" is not supported.");
 			}
@@ -90,7 +90,7 @@ public class WebCommandDispatcher {
 			Command uploadCommand = CommandBuilder.withPlatformRelativePath(command, Type.PlatformMarker, "/" + domain).getCommand();
 			uploadCommand.setRequestParams(command.getRequestParams());
 			uploadCommand.setAction(Action._new);
-			
+			//TODO - add an entry to db when the file starts to process
 			importer.doImport(uploadCommand, file.getInputStream());
 			return true;
 		} catch (Exception e) {

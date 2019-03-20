@@ -13,15 +13,15 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.antheminc.oss.nimbus.converter;
+package com.antheminc.oss.nimbus.converter.excel;
 
 /**
- * <p>A bean registry for holding file importer objects.
+ * <p>A parser settings class for how to handle parsing Excel files.
  * 
  * @author Tony Lopez
+ * @author Sandeep Mantha
  *
  */
-public interface FileImportGateway {
+public class ExcelParserSettings {
 
-	Importer getFileImporter(String extension);
 }

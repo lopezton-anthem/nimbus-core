@@ -23,7 +23,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.antheminc.oss.nimbus.context.BeanResolverStrategy;
 import com.antheminc.oss.nimbus.converter.DefaultFileImportGateway;
-import com.antheminc.oss.nimbus.converter.csv.CsvFileImporter;
+import com.antheminc.oss.nimbus.converter.excel.ExcelFileImporter;
+import com.antheminc.oss.nimbus.converter.excel.ExcelToCSVConversion;
+import com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter;
+import com.antheminc.oss.nimbus.converter.tabular.UnivocityCsvParser;
 import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecutorGateway;
 import com.antheminc.oss.nimbus.domain.config.builder.DomainConfigBuilder;
 import com.antheminc.oss.nimbus.domain.defn.extension.ValidateConditional.ValidationScope;
@@ -175,9 +178,23 @@ public class DefaultFrameworkExtensionsConfig {
 		return new StaticCodeValueBasedCodeToLabelConverter(beanResolver);
 	}
 	
+	public ExcelToCSVConversion excelToCsvConverter() {
+		return new ExcelToCSVConversion();
+	}
+	
 	@Bean
-	public CsvFileImporter csvFileImporter(DomainConfigBuilder domainConfigBuilder, CommandExecutorGateway commandGateway, ModelRepositoryFactory modelRepositoryFactory, ObjectMapper om) {
-		return new CsvFileImporter(commandGateway, domainConfigBuilder, modelRepositoryFactory, om);
+	public ExcelFileImporter excelFileImporter(TabularDataFileImporter csvFileImporter) {
+		return new ExcelFileImporter(excelToCsvConverter(), csvFileImporter);
+	}
+	
+	@Bean
+	public UnivocityCsvParser univocityCsvParser(DomainConfigBuilder domainConfigBuilder) {
+		return new UnivocityCsvParser(domainConfigBuilder);
+	}
+	
+	@Bean
+	public TabularDataFileImporter csvFileImporter(DomainConfigBuilder domainConfigBuilder, CommandExecutorGateway commandGateway, ObjectMapper om, UnivocityCsvParser univocityCsvParser,  ModelRepositoryFactory modelRepositoryFactory) {
+		return new TabularDataFileImporter(commandGateway, domainConfigBuilder, om, univocityCsvParser, modelRepositoryFactory);
 	}
 	
 	@Bean
