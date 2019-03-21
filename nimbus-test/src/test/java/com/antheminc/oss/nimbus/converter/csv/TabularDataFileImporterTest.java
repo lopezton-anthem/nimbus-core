@@ -30,9 +30,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 
 import com.antheminc.oss.nimbus.FrameworkRuntimeException;
+import com.antheminc.oss.nimbus.converter.Importer.ErrorHandling;
+import com.antheminc.oss.nimbus.converter.Importer.WriteStrategy;
 import com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter;
-import com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter.ErrorHandling;
-import com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter.WriteStrategy;
 import com.antheminc.oss.nimbus.domain.AbstractFrameworkIngerationPersistableTests;
 import com.antheminc.oss.nimbus.domain.cmd.Action;
 import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecution.MultiOutput;
@@ -44,13 +44,13 @@ import com.antheminc.oss.nimbus.test.scenarios.s0.core.MyPojo;
  * @author Tony Lopez
  *
  */
-public class TabulatDataFileImporterTest extends AbstractFrameworkIngerationPersistableTests {
+public class TabularDataFileImporterTest extends AbstractFrameworkIngerationPersistableTests {
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
 	@Autowired
-	private TabularDataFileImporter csvFileImporter;
+	private TabularDataFileImporter tabularDataFileImporter;
 
 	@Test
 	public void testUploadCommandDSL() throws FileNotFoundException, IOException {
@@ -65,7 +65,7 @@ public class TabulatDataFileImporterTest extends AbstractFrameworkIngerationPers
 	@Test
 	public void testUploadOverrideOnError() throws FileNotFoundException, IOException {
 		List<Object[]> failureData = new ArrayList<>();
-		csvFileImporter.setSilentErrorHandler((e, rowData) -> {
+		tabularDataFileImporter.setSilentErrorHandler((e, rowData) -> {
 			failureData.add(rowData);
 		});
 		uploadMismatchedCsv(ErrorHandling.SILENT);

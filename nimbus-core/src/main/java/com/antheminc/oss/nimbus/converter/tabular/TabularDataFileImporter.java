@@ -51,34 +51,6 @@ import lombok.Setter;
 @Setter
 public class TabularDataFileImporter implements Importer {
 
-	public static enum ErrorHandling {
-		/**
-		 * <p>Re-throws any thrown data parsing exception when an error parsing
-		 * row data occurs.
-		 */
-		SILENT,
-
-		/**
-		 * <p>Silently continues processing when an error parsing row data
-		 * occurs.
-		 */
-		STRICT;
-	}
-
-	public static enum WriteStrategy {
-		/**
-		 * <p>Use Command DSL's _new implementation to write each record of row
-		 * data processed.
-		 */
-		COMMAND_DSL,
-
-		/**
-		 * <p>Use the provided domain's {@link ModelRepository} implementation
-		 * to write each record of row data processed.
-		 */
-		MODEL_REPOSITORY;
-	}
-
 	public static final JustLogit LOG = new JustLogit();
 
 	public static final String ARG_ERROR_HANDLING = "errors";

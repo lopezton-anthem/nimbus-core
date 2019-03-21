@@ -183,8 +183,8 @@ public class DefaultFrameworkExtensionsConfig {
 	}
 	
 	@Bean
-	public ExcelFileImporter excelFileImporter(TabularDataFileImporter csvFileImporter) {
-		return new ExcelFileImporter(excelToCsvConverter(), csvFileImporter);
+	public ExcelFileImporter excelFileImporter(TabularDataFileImporter tabularDataFileImporter) {
+		return new ExcelFileImporter(excelToCsvConverter(), tabularDataFileImporter);
 	}
 	
 	@Bean
@@ -193,7 +193,7 @@ public class DefaultFrameworkExtensionsConfig {
 	}
 	
 	@Bean
-	public TabularDataFileImporter csvFileImporter(DomainConfigBuilder domainConfigBuilder, CommandExecutorGateway commandGateway, ObjectMapper om, UnivocityCsvParser univocityCsvParser,  ModelRepositoryFactory modelRepositoryFactory) {
+	public TabularDataFileImporter tabularDataFileImporter(DomainConfigBuilder domainConfigBuilder, CommandExecutorGateway commandGateway, ObjectMapper om, UnivocityCsvParser univocityCsvParser,  ModelRepositoryFactory modelRepositoryFactory) {
 		return new TabularDataFileImporter(commandGateway, domainConfigBuilder, om, univocityCsvParser, modelRepositoryFactory);
 	}
 	

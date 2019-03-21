@@ -51,7 +51,7 @@ import lombok.Setter;
 public class ExcelFileImporter implements Importer {
 
 	private final ExcelToCsvConverter toCsvConverter;
-	private final TabularDataFileImporter csvFileImporter;
+	private final TabularDataFileImporter tabularDataFileImporter;
 
 	private ExcelParserSettings excelParserSettings;
 
@@ -64,7 +64,7 @@ public class ExcelFileImporter implements Importer {
 			File csvFile = getToCsvConverter().convert(stream, getExcelParserSettings());
 			
 			//TODO - after csv import is done - delete the file
-			getCsvFileImporter().doImport(command, new FileInputStream(csvFile));
+			getTabularDataFileImporter().doImport(command, new FileInputStream(csvFile));
 		} catch (IOException e) {
 			throw new FrameworkRuntimeException(e);
 		}
