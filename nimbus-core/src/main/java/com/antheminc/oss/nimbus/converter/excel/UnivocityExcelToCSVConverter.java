@@ -21,7 +21,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.IntStream;
 
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,7 +35,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.joda.time.LocalDate;
 
 import com.antheminc.oss.nimbus.FrameworkRuntimeException;
 import com.univocity.parsers.csv.CsvWriter;
@@ -45,35 +47,41 @@ import com.univocity.parsers.csv.CsvWriterSettings;
  * @author Tony Lopez
  * @author Sandeep Mantha
  */
-public class ExcelToCSVConversion implements ExcelToCsvConverter {
+public class UnivocityExcelToCSVConverter implements ExcelToCsvConverter {
 
 	@Override
-	public File convert(File file, ExcelParserSettings settings) throws IOException {
-		try (Workbook workbook = WorkbookFactory.create(file)) {
-			return convert(workbook, file.getName(), settings);
-		} catch (EncryptedDocumentException | InvalidFormatException e) {
-			throw createConversionEx(e);
-		}
-	}
-
-	@Override
-	public File convert(InputStream inputStream, ExcelParserSettings settings) throws IOException {
+	public List<File> convert(InputStream inputStream, ExcelParserSettings settings) throws IOException {
 		try (Workbook workbook = WorkbookFactory.create(inputStream)) {
-			String tmpFilename = "excel-conversion-" + LocalDate.now().toString("yyyyMMddHHmmss");
-			return convert(workbook, tmpFilename, settings);
+			return convert(workbook, settings);
 		} catch (EncryptedDocumentException | InvalidFormatException e) {
-			throw createConversionEx(e);
+			throw new FrameworkRuntimeException("An error occurred while conerting the Excel workbook object.", e);
 		}
 	}
 
-	private File convert(Workbook workbook, String csvFilename, ExcelParserSettings excelParserSettings)
+	private List<File> convert(Workbook workbook, ExcelParserSettings excelParserSettings)
 			throws IOException {
 		FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
 		DataFormatter formatter = new DataFormatter(true);
 
-		//TODO - loop over all sheets in the workbook
-		Sheet selSheet = workbook.getSheetAt(0);
-		Iterator<Row> rowIterator = selSheet.iterator();
+		int[] sheetNumbers = excelParserSettings.getSheetNumbersToParse();
+		if (excelParserSettings.isParseFirstSheetOnly()) {
+			sheetNumbers = new int[] { 0 };
+		} else if (excelParserSettings.isParseAllSheets()) {
+			sheetNumbers = ArrayUtils.toPrimitive(IntStream.rangeClosed(0, workbook.getNumberOfSheets() - 1)
+				    .boxed().toArray(Integer[]::new));
+		}
+		
+		List <File> csvFiles = new ArrayList<>();
+		for(int sheetNumber : sheetNumbers) {
+			Sheet sheet = workbook.getSheetAt(sheetNumber);
+			File csvFile = parseSheet(sheet, formatter, evaluator);
+			csvFiles.add(csvFile);
+		}
+		return csvFiles;
+	}
+	
+	private File parseSheet(Sheet sheet, DataFormatter formatter, FormulaEvaluator evaluator) throws IOException {
+		Iterator<Row> rowIterator = sheet.iterator();
 
 		CsvWriterSettings settings = new CsvWriterSettings();
 		settings.setNullValue("?");
@@ -82,7 +90,7 @@ public class ExcelToCSVConversion implements ExcelToCsvConverter {
 		settings.setHeaderWritingEnabled(true);
 		settings.setSkipEmptyLines(false);
 
-		File csvFile = File.createTempFile(csvFilename, ".csv");
+		File csvFile = File.createTempFile(RandomStringUtils.randomAlphanumeric(8), ".csv");
 
 		CsvWriter writer = new CsvWriter(csvFile, settings);
 		while (rowIterator.hasNext()) {
@@ -115,9 +123,5 @@ public class ExcelToCSVConversion implements ExcelToCsvConverter {
 			}
 		}
 		return csvLine;
-	}
-
-	private FrameworkRuntimeException createConversionEx(Exception e) {
-		throw new FrameworkRuntimeException("An error occurred while conerting the Excel workbook object.", e);
 	}
 }

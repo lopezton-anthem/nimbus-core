@@ -15,6 +15,9 @@
  */
 package com.antheminc.oss.nimbus.converter.excel;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * <p>A parser settings class for how to handle parsing Excel files.
  * 
@@ -22,6 +25,11 @@ package com.antheminc.oss.nimbus.converter.excel;
  * @author Sandeep Mantha
  *
  */
+@NoArgsConstructor
+@Data
 public class ExcelParserSettings {
 
+	private boolean parseFirstSheetOnly = true;
+	private boolean parseAllSheets = false;
+	private int[] sheetNumbersToParse = { 0 };
 }

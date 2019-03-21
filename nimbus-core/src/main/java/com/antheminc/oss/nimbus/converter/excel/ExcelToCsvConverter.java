@@ -18,6 +18,7 @@ package com.antheminc.oss.nimbus.converter.excel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * <p>A simple conversion contract for excel to csv file converters.
@@ -29,16 +30,6 @@ import java.io.InputStream;
 public interface ExcelToCsvConverter {
 
 	/**
-	 * <p>Convert an excel file to it's .csv equivalent using any configured
-	 * {@code settings} provided.
-	 * @param file the excel file to convert
-	 * @param settings parsing configuration settings to apply
-	 * @return the converted .csv {@link File}
-	 * @throws IOException
-	 */
-	File convert(File file, ExcelParserSettings settings) throws IOException;
-
-	/**
 	 * <p>Convert an excel input stream to it's .csv equivalent using any
 	 * configured {@code settings} provided.
 	 * @param inputStream the excel input stream to convert
@@ -46,5 +37,5 @@ public interface ExcelToCsvConverter {
 	 * @return the converted .csv {@link File}
 	 * @throws IOException
 	 */
-	File convert(InputStream inputStream, ExcelParserSettings settings) throws IOException;
+	List<File> convert(InputStream inputStream, ExcelParserSettings settings) throws IOException;
 }

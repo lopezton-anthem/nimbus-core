@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -27,6 +28,7 @@ import com.antheminc.oss.nimbus.converter.Importer;
 import com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter;
 import com.antheminc.oss.nimbus.domain.cmd.Command;
 import com.antheminc.oss.nimbus.domain.model.state.repo.ModelRepository;
+import com.antheminc.oss.nimbus.support.CommandUtils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +44,7 @@ import lombok.Setter;
  * @author Tony Lopez
  * @author Sandeep Mantha
  * @see com.antheminc.oss.nimbus.converter.excel.ExcelToCsvConverter
- * @see com.antheminc.oss.nimbus.converter.TabularDataFileImporter
+ * @see com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter
  * 
  */
 @RequiredArgsConstructor
@@ -53,23 +55,32 @@ public class ExcelFileImporter implements Importer {
 	private final ExcelToCsvConverter toCsvConverter;
 	private final TabularDataFileImporter tabularDataFileImporter;
 
-	private ExcelParserSettings excelParserSettings;
-
-	public final static String[] SUPPORTED_EXTENSIONS = new String[] { "xlsx" , "xls"};
-	
+	public final static String[] SUPPORTED_EXTENSIONS = new String[] { "xlsx" , "xls"};	
 	
 	@Override
 	public <T> void doImport(Command command, InputStream stream) {
+		List<File> csvFiles = null;
 		try {
-			File csvFile = getToCsvConverter().convert(stream, getExcelParserSettings());
-			
-			//TODO - after csv import is done - delete the file
-			getTabularDataFileImporter().doImport(command, new FileInputStream(csvFile));
+			csvFiles = getToCsvConverter().convert(stream, buildExcelParserSettings(command));
+			for(File csvFile: csvFiles) {
+				getTabularDataFileImporter().doImport(command, new FileInputStream(csvFile));
+				csvFile.delete();
+			}
 		} catch (IOException e) {
 			throw new FrameworkRuntimeException(e);
+		} finally {
+			if (null != csvFiles && !csvFiles.isEmpty()) {
+				csvFiles.forEach(File::delete);
+			}
 		}
 	}
 
+	private ExcelParserSettings buildExcelParserSettings(Command command) {
+		ExcelParserSettings settings = new ExcelParserSettings();
+		CommandUtils.copyRequestParams(settings, command);	
+		return settings;
+	}
+	
 	@Override
 	public boolean supports(String extension) {
 		return ArrayUtils.contains(SUPPORTED_EXTENSIONS, extension);

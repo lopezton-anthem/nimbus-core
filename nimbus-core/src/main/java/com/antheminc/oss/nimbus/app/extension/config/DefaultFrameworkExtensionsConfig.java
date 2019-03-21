@@ -22,9 +22,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.antheminc.oss.nimbus.context.BeanResolverStrategy;
-import com.antheminc.oss.nimbus.converter.DefaultFileImportGateway;
+import com.antheminc.oss.nimbus.converter.DefaultFileUploadGateway;
 import com.antheminc.oss.nimbus.converter.excel.ExcelFileImporter;
-import com.antheminc.oss.nimbus.converter.excel.ExcelToCSVConversion;
+import com.antheminc.oss.nimbus.converter.excel.UnivocityExcelToCSVConverter;
 import com.antheminc.oss.nimbus.converter.tabular.TabularDataFileImporter;
 import com.antheminc.oss.nimbus.converter.tabular.UnivocityCsvParser;
 import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecutorGateway;
@@ -178,8 +178,8 @@ public class DefaultFrameworkExtensionsConfig {
 		return new StaticCodeValueBasedCodeToLabelConverter(beanResolver);
 	}
 	
-	public ExcelToCSVConversion excelToCsvConverter() {
-		return new ExcelToCSVConversion();
+	public UnivocityExcelToCSVConverter excelToCsvConverter() {
+		return new UnivocityExcelToCSVConverter();
 	}
 	
 	@Bean
@@ -198,8 +198,8 @@ public class DefaultFrameworkExtensionsConfig {
 	}
 	
 	@Bean
-	public DefaultFileImportGateway defaultFileImportGateway(BeanResolverStrategy beanResolver) {
-		return new DefaultFileImportGateway(beanResolver);
+	public DefaultFileUploadGateway defaultFileUploadGateway(BeanResolverStrategy beanResolver) {
+		return new DefaultFileUploadGateway(beanResolver);
 	}
 	
 }
