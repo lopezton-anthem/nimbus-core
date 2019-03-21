@@ -15,11 +15,11 @@
  */
 package com.antheminc.oss.nimbus.converter;
 
-
 import java.io.InputStream;
 
 import com.antheminc.oss.nimbus.domain.cmd.Command;
 import com.antheminc.oss.nimbus.domain.model.state.repo.ModelRepository;
+
 
 /**
  * <p>A base importer interface for handling the import of data.
@@ -57,12 +57,6 @@ public interface Importer {
 		 */
 		MODEL_REPOSITORY;
 	}
-	/**
-	 * <p>Tell whether or not this importer supports the given file type extension
-	 * @param extension the file type extension to check
-	 * @return {@code true} if supported, {@code false} otherwise
-	 */
-	public boolean supports(String extension);
 
 	/**
 	 * <p>Import data from the provided resource by converting each record of
@@ -75,4 +69,11 @@ public interface Importer {
 	 * @param stream the object containing the data to import
 	 */
 	<T> void doImport(Command command, InputStream stream);
+
+	/**
+	 * <p>Tell whether or not this importer supports the given file type extension
+	 * @param extension the file type extension to check
+	 * @return {@code true} if supported, {@code false} otherwise
+	 */
+	public boolean supports(String extension);
 }
