@@ -1,6 +1,6 @@
 /**
  * @license
- * Copyright 2016-2018 the original author or authors.
+ * Copyright 2016-2019 the original author or authors.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-import { Component, Input } from '@angular/core';
-import { BaseLabel } from '../../base-label.component';
+
+import { Converter } from './object.conversion';
+
+ 'use strict';
 
 /**
  * \@author Tony Lopez
@@ -25,24 +26,27 @@ import { BaseLabel } from '../../base-label.component';
  * \@howToUse 
  * 
  */
-@Component({
-  selector: 'nm-input-label',
-  template: `
-    <label *ngIf="label"
-        className="{{required ? 'required '+labelCss  : labelCss}}"
-        [attr.for]="for">
-        
-        {{label}} 
-        
-        <nm-tooltip *ngIf="helpText" [helpText]='helpText'></nm-tooltip>
-    </label>
-   `
-})
-export class InputLabel extends BaseLabel {
+enum Type {
+    INTERNAL = "INTERNAL",
+    EXTERNAL = "EXTERNAL"
+}
 
-    @Input() for: string;
-    
-    constructor() {
-        super();
+/**
+ * \@author Tony Lopez
+ * \@whatItDoes 
+ * 
+ * \@howToUse 
+ * 
+ */
+export class PageNavigationResponse {
+
+    static readonly Type = Type;
+
+    type: Type = Type.INTERNAL;
+    pageId: string;
+    redirectUrl: string;
+
+    constructor(inJson: string) {
+        Converter.convert(inJson, this);
     }
 }

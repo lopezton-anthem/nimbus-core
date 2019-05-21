@@ -316,7 +316,6 @@ export class TreeGridDeserializer {
 
         }
         catch (e) {
-            //  console.log("Error in tree deserializer", e);
 
         }
     }
@@ -471,8 +470,10 @@ export abstract class RowData {
         if (!param || !this.shouldCollect(param, baseParam)) {
             return;
         }
-
-    this.nestedParams[param.config.code] = param;
+        
+        if (param.config) {
+            this.nestedParams[param.config.code] = param;
+        }
 
         // if nested, recursively perform the collection
         if (param.type && param.type.model && param.type.model.params) {

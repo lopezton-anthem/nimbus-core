@@ -27,6 +27,8 @@ import { ValidationUtils } from './validators/ValidationUtils';
 import { AbstractControl } from '@angular/forms/src/model';
 import { ConstraintMapping } from './../../shared/validationconstraints.enum';
 import { Constraint } from './../../shared/param-config';
+import { CounterMessageService } from './../../services/counter-message.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 var counter = 0;
 
@@ -51,6 +53,8 @@ export class FormElement extends BaseElement {
     componentStyle: string;
     componentTypes = ComponentTypes;
     viewComponent = ViewComponent;
+    componentClass: string[] = ['form-group'];
+    errorStyles = 'alert alert-danger';
 
     get isValid() {
         if (this.form.controls[this.element.config.code] != null) {
@@ -73,9 +77,7 @@ export class FormElement extends BaseElement {
             return true;
         }
     }
-    get elementMessages() {
-        return this.getMessages();
-    }
+    
     getMessages() {
         this.elemMessages = [];
             if (this.element.message != null && this.element.message.length > 0) {
@@ -91,13 +93,13 @@ export class FormElement extends BaseElement {
         return (this.elemMessages != null && this.elemMessages.length > 0);
     }
 
-    constructor(private wcsv: WebContentSvc) { 
+    constructor(private wcsv: WebContentSvc, private cms: CounterMessageService, private cd: ChangeDetectorRef) { 
         super(wcsv);
     }
 
     getErrorStyles() {
         if (this.showErrors) {
-            return 'alert alert-danger';
+            return this.errorStyles;
         } else {
             return '';
         }
@@ -134,6 +136,11 @@ export class FormElement extends BaseElement {
                     let constraint: Constraint = this.element.config.validation.constraints.find(v => v.name == constraintName);
                     this.addErrorMessages(constraint.attribute.message);
             }   
+        } else {
+            const index = this.componentClass.indexOf(this.errorStyles,0)
+            if(index >=0) {
+                this.componentClass.splice(index);
+            }
         }
     }
 

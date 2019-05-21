@@ -61,7 +61,7 @@ export class HeaderGlobal {
         }
         return '';
     }
-
+    
     ngOnDestroy() {
         if (this.mouseEventSubscription)
             this.mouseEventSubscription.unsubscribe();

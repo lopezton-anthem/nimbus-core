@@ -18,7 +18,6 @@
 
 import { Input } from '@angular/core';
 import { Param } from './../../shared/param-state';
-import { PageService } from './../../services/page.service';
 import { ParamUtils } from './../../shared/param-utils';
 
 /**
@@ -31,7 +30,9 @@ import { ParamUtils } from './../../shared/param-utils';
 export abstract class BaseLabel {
 
     @Input() element: Param;
-
+    @Input() labelClass: String;
+    @Input() required: boolean;
+    
     constructor() {
 
     }
@@ -53,7 +54,7 @@ export abstract class BaseLabel {
     /**
      * Get the css classes to apply for this element.
      */
-    public getCssClass(): string {
+    public get cssClass(): string {
         let cssClass = ParamUtils.getLabelCss(this.element);
         return cssClass ? cssClass : '';
     }
