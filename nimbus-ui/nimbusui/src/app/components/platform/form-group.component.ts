@@ -85,6 +85,10 @@ export const CUSTOM_INPUT_CONTROL_VALUE_ACCESSOR: any = {
                 <nm-button-group [form]="form" [buttonList]="element.type?.model?.params" class="{{element.config?.uiStyles?.attributes?.cssClass}} buttonGroup"> 
                 </nm-button-group>
             </ng-template>
+
+            <ng-template [ngIf]="element.config?.uiStyles?.attributes?.alias == viewComponent.progressBar.toString()">
+                <nm-progressBar [element]="element" [form]="form"></nm-progressBar>
+            </ng-template>
         </span>
     `
 })

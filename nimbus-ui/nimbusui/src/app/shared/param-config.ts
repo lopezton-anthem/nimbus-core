@@ -179,7 +179,6 @@ export class UiAttribute implements Serializable<UiAttribute,string> {
     modelPath: string;
     inplaceEdit: boolean;
     inplaceEditType: string;
-    //below 2 attributes are for OrderablePickList
     sourceHeader: string;
     targetHeader: string;
     payload: string;
@@ -200,8 +199,8 @@ export class UiAttribute implements Serializable<UiAttribute,string> {
     acceptLabel: string;
     rowExpander: boolean;
     readonlyInput: boolean;
-	  monthNavigator: boolean;
-	  yearNavigator: boolean;
+	monthNavigator: boolean;
+	yearNavigator: boolean;
     yearRange: string;
     metaData: any;
     captureType: string;
@@ -246,6 +245,9 @@ export class UiAttribute implements Serializable<UiAttribute,string> {
     toolTipPosition: string;
     tooltipStyleClass: string;
     escape: boolean;
+    showValue: boolean;
+    unit: string;
+    mode: string;
 
     deserialize( inJson ) {
         let obj = this;

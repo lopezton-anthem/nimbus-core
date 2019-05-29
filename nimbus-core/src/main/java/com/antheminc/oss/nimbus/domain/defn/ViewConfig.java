@@ -980,20 +980,17 @@ public class ViewConfig {
 	 * following components: <ul> <li>Section</li> </ul>
 	 * 
 	 * <p>Form will render nested fields that are decorated with: <ul>
-	 * <li>{@link FormElementGroup}</li> <li>{@link Accordion}</li>
+	 * <li>{@link Accordion}</li> <li>{@link Autocomplete}</li>
 	 * <li>{@link Button}</li> <li>{@link ButtonGroup}</li>
 	 * <li>{@link Calendar}</li> <li>{@link CheckBox}</li>
 	 * <li>{@link CheckBoxGroup}</li> <li>{@link ComboBox}</li>
-	 * <li>{@link FileUpload}</li> <li>{@link Grid}</li> <li>{@link Header}</li>
+	 * <li>{@link FileUpload}</li> <li>{@link FormElementGroup}</li>
+	 * <li>{@link Grid}</li> <li>{@link Header}</li> <li>{@link InputMask}</li>
 	 * <li>{@link MultiSelect}</li> <li>{@link MultiSelectCard}</li>
 	 * <li>{@link Paragraph}</li> <li>{@link PickList}</li>
-	 * <li>{@link Radio}</li> <li>{@link Signature}</li>
+	 * <li>{@link ProgressBar}</li> <li>{@link Radio}</li>
+	 * <li>{@link RichText}</li><li>{@link Signature}</li>
 	 * <li>{@link TextArea}</li> <li>{@link TextBox}</li>
-	 * <li>{@link InputMask}</li> <li>{@link Autocomplete}</li> </ul>
-	 * <li>{@link Radio}</li>  <li>{@link RichText}</li> 
-	 * <li>{@link Signature}</li> <li>{@link TextArea}</li>
-	 * <li>{@link TextBox}</li> </ul>
-
 	 * 
 	 * <p><i>*Note: Nested class fields will <b>not</b> be rendered in the same
 	 * manner as fields declared directly under the Form decorated field. This
@@ -2244,6 +2241,64 @@ public class ViewConfig {
 		Property value() default Property.DEFAULT;
 	}
 	
+	/**
+	 * <p>ProgressBar is a process status indicator.
+	 * 
+	 * <p><b>Expected Field Structure</b>
+	 * 
+	 * <p>ProgressBar will be rendered when annotating a field nested under one
+	 * of the following components: <ul> <li>{@link Form}</li>
+	 * <li>{@link Section}</li></ul>
+	 * 
+	 * <p>If used within a {@link Form}, the value of the progress bar will be
+	 * directly linked with the number of fields that have been successfully
+	 * validated.
+	 * 
+	 * <p>ProgressBar should decorate a field having a simple numeric type.
+	 * 
+	 * @since 1.3
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.FIELD })
+	@ViewStyle
+	public @interface ProgressBar {
+		public static enum Mode {
+			/**
+			 * <p> Requires a value between 0 and 100 to display the progress.
+			 */
+			DETERMINATE,
+
+			/**
+			 * <p> Has no value requirement and is simple enabled and displayed.
+			 */
+			INDETERMINATE;
+		}
+
+		String alias() default "ProgressBar";
+
+		/**
+		 * <p>CSS classes added here will be added to a container element
+		 * surrounding this component. <p>This can be used to apply additional
+		 * styling, if necessary.
+		 */
+		String cssClass() default "";
+
+		/**
+		 * <p> Define the mode of the progress.
+		 */
+		Mode mode() default Mode.DETERMINATE;
+
+		/**
+		 * <p> Show or hide the progress bar value.
+		 */
+		boolean showValue() default false;
+
+		/**
+		 * <p> Unit sign to append to the value.
+		 */
+		String unit() default "%";
+	}
+	
 	
 	/**
 	 * <p> Tooltip can be used to display additional information to the user.
@@ -2672,10 +2727,12 @@ public class ViewConfig {
 	 * <p>Section will render nested fields that are decorated with: <ul>
 	 * <li>{@link Accordion}</li> <li>{@link Button}</li>
 	 * <li>{@link ButtonGroup}</li> <li>{@link CardDetail}</li>
-	 * <li>{@link CardDetailsGrid}</li> <li>{@link Tab}</li> <li>{@link ComboBox}</li>
+	 * <li>{@link CardDetailsGrid}</li><li>{@link Chart}</li><li>{@link ComboBox}</li>
 	 * <li>{@link Form}</li> <li>{@link Grid}</li> <li>{@link Link}</li>
-	 * <li>{@link Menu}</li> <li>{@link Paragraph}</li><li>{@link Chart}</li>
-	 * <li>{@link StaticText}</li> <li>{@link TextBox}</li> <li>{@link Autocomplete}</li> </ul>
+	 * <li>{@link Menu}</li>
+	 * <li>{@link Paragraph}</li><li>{@link ProgressBar}</li>
+	 * <li>{@link StaticText}</li><li>{@link Tab}</li><li>{@link TextBox}</li>
+	 * <li>{@link Autocomplete}</li> </ul>
 	 * 
 	 * @since 1.0
 	 */

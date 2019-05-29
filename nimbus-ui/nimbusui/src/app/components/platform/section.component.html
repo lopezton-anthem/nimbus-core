@@ -98,6 +98,10 @@
             <ng-template [ngIf]="element.alias == componentTypes.autocomplete.toString()">
                 <nm-autocomplete [element]="element" [(ngModel)]="element.leafState"></nm-autocomplete>
             </ng-template>
+            <!-- ProgressBar -->
+            <ng-template [ngIf]="element.alias == viewComponent.progressBar.toString()">
+                <nm-progressBar [element]="element"></nm-progressBar>
+            </ng-template>
         </ng-template>
     </ng-template>
 </div>

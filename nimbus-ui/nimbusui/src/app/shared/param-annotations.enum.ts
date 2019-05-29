@@ -53,6 +53,7 @@ export class ViewComponent extends Enum<string> {
     public static readonly header = new Enum('Header');
     public static readonly formGridFiller = new Enum('FormGridFiller');
     public static readonly chart = new Enum('Chart');
+    public static readonly progressBar = new Enum('ProgressBar');
 
     static attributeList(): String[] {
       const keys = Object.keys(ViewConfig);

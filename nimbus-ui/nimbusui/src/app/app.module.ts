@@ -168,6 +168,7 @@ import { FormErrorMessage } from './components/platform/form-error-message.compo
 import { EventPropagationDirective } from './components/platform/form/elements/event-propagation.directive';
 import { NmChart } from './components/platform/charts/chart.component';
 import { NmMessageService } from './services/toastmessage.service';
+import { ProgressBar } from './components/platform/content/progress-bar.component';
 /**
  * \@author Dinakar.Meda
  * \@author Sandeep.Mantha
@@ -240,7 +241,8 @@ export function init_app(appinitservice: AppInitService) {
         KeysPipe, LinkPipe, DateTimeFormatPipe, SelectItemPipe, MultiSelectListBox, 
         CheckBox, FileUploadComponent, BreadcrumbComponent, TooltipComponent, Calendar, LoaderComponent, MessageComponent,
         HeaderCheckBox, SvgComponent, ActionTray, SubDomainFlowCmp, Image, NmPanelMenu,NmPanelMenuSub, MenuRouterLinkActive, NmChart, ToastMessageComponent,
-        MenuRouteLink, Label, InputLabel,InputSwitch,TreeGrid,InputLegend, FormErrorMessage, BaseTableElement, EventPropagationDirective, TableHeader, NavigationComponent
+        MenuRouteLink, Label, InputLabel,InputSwitch,TreeGrid,InputLegend, FormErrorMessage, BaseTableElement, EventPropagationDirective, TableHeader, NavigationComponent,
+        ProgressBar
     ],
     entryComponents: [ FlowWrapper, PageContent, PageNotfoundComponent, LoginCmp, HomeLayoutCmp, SubDomainFlowCmp],
     providers: [ PageService, ConfigService, WebContentSvc, HttpClient,  HttpClientModule, AppInitService, CounterMessageService,
