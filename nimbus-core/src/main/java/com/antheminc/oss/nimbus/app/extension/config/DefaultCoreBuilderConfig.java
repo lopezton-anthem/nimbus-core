@@ -29,6 +29,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.env.Environment;
 import org.springframework.core.env.PropertyResolver;
 
 import com.antheminc.oss.nimbus.context.BeanResolverStrategy;
@@ -42,6 +43,7 @@ import com.antheminc.oss.nimbus.domain.config.builder.DomainConfigBuilder;
 import com.antheminc.oss.nimbus.domain.config.builder.EventAnnotationConfigHandler;
 import com.antheminc.oss.nimbus.domain.config.builder.attributes.ConstraintAnnotationAttributeHandler;
 import com.antheminc.oss.nimbus.domain.config.builder.attributes.DefaultAnnotationAttributeHandler;
+import com.antheminc.oss.nimbus.domain.defn.Repo;
 import com.antheminc.oss.nimbus.domain.model.config.EntityConfig.Scope;
 import com.antheminc.oss.nimbus.domain.model.config.builder.EntityConfigBuilder;
 import com.antheminc.oss.nimbus.domain.model.config.builder.internal.DefaultEntityConfigBuilder;
@@ -55,6 +57,7 @@ import com.antheminc.oss.nimbus.domain.model.state.builder.QuadModelBuilder;
 import com.antheminc.oss.nimbus.domain.model.state.builder.internal.DefaultEntityStateBuilder;
 import com.antheminc.oss.nimbus.domain.model.state.builder.internal.DefaultQuadModelBuilder;
 import com.antheminc.oss.nimbus.domain.model.state.extension.ChangeLogCommandEventHandler;
+import com.antheminc.oss.nimbus.domain.model.state.repo.ModelRepositoryFactory;
 import com.antheminc.oss.nimbus.support.DefaultLoggingInterceptor;
 import com.antheminc.oss.nimbus.support.SecurityUtils;
 
@@ -90,8 +93,13 @@ public class DefaultCoreBuilderConfig {
 	}
 	
 	@Bean
-	public ChangeLogCommandEventHandler changeLogCommandEventHandler(BeanResolverStrategy beanResolver) {
-		return new ChangeLogCommandEventHandler(beanResolver);
+	public ChangeLogCommandEventHandler changeLogCommandEventHandler(BeanResolverStrategy beanResolver, Environment env, ModelRepositoryFactory modelRepositoryFactory) {
+		// Determine modelRepository
+		Repo.Database database = Repo.Database.rep_mongodb;
+		if (env.containsProperty("repo.rdbms.jdbc.url")) {
+			database = Repo.Database.rep_rdbms;
+		}
+		return new ChangeLogCommandEventHandler(beanResolver, modelRepositoryFactory.get(database));
 	}
 	
 	@Bean
