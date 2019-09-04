@@ -81,6 +81,7 @@
         <nimbus.dsl.version>${nimbus.core.version}</nimbus.dsl.version> <!-- DSL matches core's version -->
         <nimbus.test.version>${nimbus.version}</nimbus.test.version>
         <nimbus.starter.version>${nimbus.version}</nimbus.starter.version>
+        <nimbus.auto.configure.version>${nimbus.version}</nimbus.auto.configure.version>
         
         <!-- Manually Managed third party versions -->
         <jackson.version>2.9.6</jackson.version>
@@ -318,6 +319,11 @@
             	<groupId>org.owasp.antisamy</groupId>
             	<artifactId>antisamy</artifactId>
             	<version>${owasp-antisamy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.antheminc.oss</groupId>
+                <artifactId>nimbus-auto-configure</artifactId>
+                <version>${nimbus.auto.configure.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.antheminc.oss</groupId>

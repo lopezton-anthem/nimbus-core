@@ -63,6 +63,11 @@
 	<dependencies>	
 	    <dependency>
 			<groupId>com.antheminc.oss</groupId>
+			<artifactId>nimbus-auto-configure</artifactId>
+			<version>${nimbus.version}</version>
+		</dependency>
+	    <dependency>
+			<groupId>com.antheminc.oss</groupId>
 		    <artifactId>nimbus-core</artifactId>
 		    <version>${nimbus.version}</version>
 		</dependency>
