@@ -15,10 +15,9 @@
  */
 package com.antheminc.oss.nimbus.domain.cmd.exec.internal;
 
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,21 +28,21 @@ import org.springframework.core.env.PropertyResolver;
 
 import com.antheminc.oss.nimbus.InvalidConfigException;
 import com.antheminc.oss.nimbus.context.BeanResolverStrategy;
-import com.antheminc.oss.nimbus.domain.cmd.Action;
-import com.antheminc.oss.nimbus.domain.cmd.Behavior;
-import com.antheminc.oss.nimbus.domain.cmd.Command;
-import com.antheminc.oss.nimbus.domain.cmd.CommandBuilder;
-import com.antheminc.oss.nimbus.domain.cmd.CommandElement.Type;
-import com.antheminc.oss.nimbus.domain.cmd.CommandMessage;
 import com.antheminc.oss.nimbus.domain.cmd.CommandMessageConverter;
-import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecution.MultiOutput;
 import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecutorGateway;
 import com.antheminc.oss.nimbus.domain.cmd.exec.CommandPathVariableResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.ParamPathExpressionParser;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.ElemIdResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.EnvResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.JsonFunctionResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.KeywordResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.PlatformMarkerResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.RefIdResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.SelfResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.ThisResolver;
 import com.antheminc.oss.nimbus.domain.defn.Constants;
 import com.antheminc.oss.nimbus.domain.model.state.EntityState.Param;
 import com.antheminc.oss.nimbus.domain.session.SessionProvider;
-import com.antheminc.oss.nimbus.entity.client.user.ClientUser;
 import com.antheminc.oss.nimbus.support.EnableLoggingInterceptor;
 import com.antheminc.oss.nimbus.support.JustLogit;
 
@@ -52,176 +51,121 @@ import lombok.Getter;
 
 /**
  * @author Soham Chakravarti
+ * @author Tony Lopez
  *
  */
 @EnableLoggingInterceptor
-@Getter(value=AccessLevel.PROTECTED)
+@Getter(value = AccessLevel.PROTECTED)
 public class DefaultCommandPathVariableResolver implements CommandPathVariableResolver {
 
-	protected final JustLogit logit = new JustLogit(DefaultCommandPathVariableResolver.class);
-	
 	private static final String NULL_STRING = "null";
 	private static final String NULL_STRING_REGEX = "\\s*\"null\"\\s*";
 	private static final Pattern NULL_STRING_PATTERN = Pattern.compile(NULL_STRING_REGEX);
-	
+
 	private final CommandMessageConverter converter;
-	private final PropertyResolver propertyResolver;
-	private final SessionProvider sessionProvider;
 	private final Environment environment;
 	private final CommandExecutorGateway executorGateway;
-	
+	private final PropertyResolver propertyResolver;
+	private final SessionProvider sessionProvider;
+	private final List<KeywordResolver> keywordResolvers = new ArrayList<>();
+	private final JsonFunctionResolver jsonFunctionResolver;
+
+	protected final JustLogit logit = new JustLogit(DefaultCommandPathVariableResolver.class);
+
 	public DefaultCommandPathVariableResolver(BeanResolverStrategy beanResolver, PropertyResolver propertyResolver) {
 		this.converter = beanResolver.get(CommandMessageConverter.class);
 		this.propertyResolver = propertyResolver;
 		this.sessionProvider = beanResolver.get(SessionProvider.class);
 		this.environment = beanResolver.get(Environment.class);
-		this.executorGateway = beanResolver.find(CommandExecutorGateway.class);
+		this.executorGateway = beanResolver.get(CommandExecutorGateway.class);
+
+		registerDefaultKeywordResolvers();
+		this.jsonFunctionResolver = new JsonFunctionResolver(Constants.MARKER_FN_JSON.code, executorGateway, converter);
 	}
-	
-	
+
+	public void registerDefaultKeywordResolvers() {
+		registerResolver(new SelfResolver(Constants.MARKER_SESSION_SELF.code, sessionProvider));
+		registerResolver(new EnvResolver(Constants.MARKER_ENV.code, environment));
+		registerResolver(new ThisResolver(Constants.MARKER_COMMAND_PARAM_CURRENT_SELF.code));
+		registerResolver(new RefIdResolver(Constants.MARKER_REF_ID.code));
+		registerResolver(new ElemIdResolver(Constants.MARKER_ELEM_ID.code));
+		registerResolver(new PlatformMarkerResolver(Constants.SEGMENT_PLATFORM_MARKER.code, executorGateway));
+	}
+
+	public void registerResolver(KeywordResolver resolver) {
+		this.keywordResolvers.add(resolver);
+	}
+
 	@Override
 	public String resolve(Param<?> param, String urlToResolve) {
-		if(StringUtils.trimToNull(urlToResolve)==null)
+		if (StringUtils.trimToNull(urlToResolve) == null)
 			return urlToResolve;
-		
+
 		// resolve property place-holders first
 		try {
 			String resolvedPlaceHolders = getPropertyResolver().resolveRequiredPlaceholders(urlToResolve);
 			return resolveInternal(param, resolvedPlaceHolders);
 		} catch (RuntimeException ex) {
-			throw new InvalidConfigException("Failed to resolve with property place-holders for param: "+param+" with url: "+urlToResolve, ex);
+			throw new InvalidConfigException(
+					"Failed to resolve with property place-holders for param: " + param + " with url: " + urlToResolve,
+					ex);
 		}
 	}
-	
-	
-	protected String resolveInternal(Param<?> param, String urlToResolve) {
-		Map<Integer, String> entries = ParamPathExpressionParser.parse(urlToResolve);
-		if(MapUtils.isEmpty(entries))
-			return urlToResolve;
-		
-		String out = urlToResolve;
-		for(Integer i : entries.keySet()) {
-			String key = entries.get(i);
-			
-			// look for relative path to passed in param's parent model
-			String pathToResolve = ParamPathExpressionParser.stripPrefixSuffix(key);
-			
-			String val = map(param, pathToResolve);
-			
-			out = StringUtils.replace(out, key, val, 1);
-		}
-		
-		Matcher m = NULL_STRING_PATTERN.matcher(out);
-		out = m.replaceAll(NULL_STRING); // replaces all json="null" (including leading/trailing spaces) to json=null
-		return out;
-	}
-	
+
 	protected String map(Param<?> param, String pathToResolve) {
 		// handle recursive
-		if(ParamPathExpressionParser.containsPrefixSuffix(pathToResolve)) {
+		if (ParamPathExpressionParser.containsPrefixSuffix(pathToResolve)) {
 			String recursedPath = resolveInternal(param, pathToResolve);
-			pathToResolve = recursedPath; 
+			pathToResolve = recursedPath;
 		}
-			
-		if(StringUtils.startsWithIgnoreCase(pathToResolve, Constants.MARKER_SESSION_SELF.code))
-			return mapSelf(param, pathToResolve);
-		if(StringUtils.startsWithIgnoreCase(pathToResolve, Constants.MARKER_ENV.code))
-			return mapEnvironment(param, pathToResolve);
-		
-		if(StringUtils.startsWithIgnoreCase(pathToResolve, Constants.MARKER_COMMAND_PARAM_CURRENT_SELF.code))
-			return StringUtils.removeStart(param.getPath(), param.getRootDomain().getPath());
-		
-		if(StringUtils.startsWithIgnoreCase(pathToResolve, Constants.MARKER_REF_ID.code))
-			return String.valueOf(param.getRootExecution().getRootCommand().getRefId(Type.DomainAlias));
 
-		if(StringUtils.startsWithIgnoreCase(pathToResolve, Constants.MARKER_ELEM_ID.code)) 
-			return mapColElem(param, pathToResolve);
-		
-		if(StringUtils.startsWithIgnoreCase(pathToResolve, Constants.SEGMENT_PLATFORM_MARKER.code))
-			return String.valueOf(mapCrossDomain(param, pathToResolve));
-		
+		for (KeywordResolver keywordResolver : keywordResolvers) {
+			if (keywordResolver.shouldApply(pathToResolve)) {
+				return keywordResolver.resolve(param, pathToResolve);
+			}
+		}
+
 		return mapQuad(param, pathToResolve);
 	}
-	
-	//TODO bean path evaluation to get value
-	protected String mapSelf(Param<?> param, String pathToResolve) {
-		if(StringUtils.endsWith(pathToResolve, "loginId"))
-			return Optional.ofNullable(getSessionProvider().getLoggedInUser()).orElseGet(() -> new ClientUser()).getLoginId();
-		if(StringUtils.endsWith(pathToResolve, "id")) {
-			Long id = Optional.ofNullable(getSessionProvider().getLoggedInUser()).orElseGet(() -> new ClientUser()).getId();
-			return String.valueOf(id);
-		}
-		
-		return param.getRootExecution().getRootCommand().getElementSafely(Type.ClientAlias).getAlias();
-	}
-	
-	protected String mapEnvironment(Param<?> param, String pathToResolve) {
-		String property = pathToResolve.replace(Constants.MARKER_ENV.code+".", "");
-		return environment.getProperty(property);
-	}
-	
+
 	protected String mapQuad(Param<?> param, String pathToResolve) {
-		if(StringUtils.startsWith(pathToResolve, "json(")) {
-			String paramPath = StringUtils.substringBetween(pathToResolve, "json(", ")");
-			Object state;
-			if (StringUtils.startsWithIgnoreCase(paramPath, Constants.SEGMENT_PLATFORM_MARKER.code)) {
-				state = mapCrossDomain(param, paramPath);
-			} else {
-				Param<?> p = param.findParamByPath(paramPath) != null? param.findParamByPath(paramPath): param.getParentModel().findParamByPath(paramPath);
-				if(p == null) {
-					logit.error(() -> new StringBuffer().append(" Param (using paramPath) ").append(paramPath).append(" not found from param reference: ").append(param).toString());
-					return NULL_STRING;
-				}				
-				state = p.getLeafState();
-			}
-			String json = getConverter().toJson(state);
-			return String.valueOf(json);
-		} else {
-			Param<?> p = param.findParamByPath(pathToResolve) != null? param.findParamByPath(pathToResolve): param.getParentModel().findParamByPath(pathToResolve);
-			if(p == null) {
-				logit.error(() -> new StringBuffer().append(" Param (using paramPath) ").append(pathToResolve).append(" not found from param reference: ").append(param).toString());
-				return NULL_STRING;
-			}
-			return String.valueOf(p.getState());
+		if (jsonFunctionResolver.shouldApply(pathToResolve)) {
+			return jsonFunctionResolver.resolve(param, pathToResolve);
 		}
+
+		Param<?> p = param.findParamByPath(pathToResolve);
+		if (null == p) {
+			p = param.getParentModel().findParamByPath(pathToResolve);
+		}
+		if (null == p) {
+			logit.error(() -> new StringBuffer().append(" Param (using paramPath) ").append(pathToResolve)
+					.append(" not found from param reference: ").append(param).toString());
+			return NULL_STRING;
+		}
+		return String.valueOf(p.getState());
 	}
 
-	protected String mapColElem(Param<?> commandParam, String pathToResolve) {
-		// check if command param is colElem
-		if(commandParam.isCollectionElem())
-			return commandParam.findIfCollectionElem().getElemId();
-		
-		// otherwise, if mapped, check if mapsTo param is colElem
-		if(commandParam.isMapped())
-			return mapColElem(commandParam.findIfMapped().getMapsTo(), pathToResolve);
-		
-		// throw ex ..or.. blank??
-		return "";
-	}
-	
-	/**
-	 * 
-	 * @param commandParam
-	 * @param pathToResolve
-	 * @return
-	 * @since 1.1.11
-	 */
-	protected Object mapCrossDomain(Param<?> commandParam, String pathToResolve) {
-		Command rootCmd = commandParam.getRootExecution().getRootCommand();
-		CommandBuilder cmdBuilder = CommandBuilder.withPlatformRelativePath(rootCmd, Type.AppAlias, pathToResolve);
-		cmdBuilder.setAction(Action._get);
-		cmdBuilder.setBehaviors(new LinkedList<>(Arrays.asList(Behavior.$state)));
-		Command cmd = cmdBuilder.getCommand();
-		CommandMessage cmdMsg = new CommandMessage(cmd, null);		
-		MultiOutput output = executorGateway.execute(cmdMsg);
-		Object response = output.getSingleResult();
-		
-		if (response == null) {
-			logit.error(() -> new StringBuffer().append(" Param (using paramPath) [").append(pathToResolve).append("] not found from param: ").append(commandParam).toString());
-			return null;
+	protected String resolveInternal(Param<?> param, String urlToResolve) {
+		Map<Integer, String> entries = ParamPathExpressionParser.parse(urlToResolve);
+		if (MapUtils.isEmpty(entries))
+			return urlToResolve;
+
+		String out = urlToResolve;
+		for (Integer i : entries.keySet()) {
+			String key = entries.get(i);
+
+			// look for relative path to passed in param's parent model
+			String pathToResolve = ParamPathExpressionParser.stripPrefixSuffix(key);
+
+			String val = map(param, pathToResolve);
+
+			out = StringUtils.replace(out, key, val, 1);
 		}
-		
-		logit.debug(() -> new StringBuffer().append(" Param (using paramPath) [").append(pathToResolve).append("] has been resolved to ").append(response).toString());
-		return response;
+
+		Matcher m = NULL_STRING_PATTERN.matcher(out);
+		out = m.replaceAll(NULL_STRING); // replaces all json="null" (including
+											// leading/trailing spaces) to
+											// json=null
+		return out;
 	}
 }
