@@ -21,6 +21,12 @@ import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecutorGateway;
 import com.antheminc.oss.nimbus.domain.model.state.EntityState.Param;
 
 /**
+ * <p> A utility class intended to provide support how the framework would
+ * interpret "function" based syntax in Command Query DSL.
+ * 
+ * <p> Takes arguments of the form {@code <!someFnName(arg1, arg2)!>} and
+ * provides extracted arguments (e.g. {@code arg1} and {@code arg2} to
+ * implementation classes to continue resolving.
  * 
  * @author Tony Lopez
  *
@@ -30,7 +36,7 @@ public abstract class FunctionResolver extends CrossDomainKeywordResolver {
 	public static final String LEFT_DELIMITER = "(";
 	public static final String RIGHT_DELIMITER = ")";
 	public static final String ARGUMENT_DELIMITER = ",";
-	
+
 	public FunctionResolver(String fnName, CommandExecutorGateway executorGateway) {
 		super(fnName + LEFT_DELIMITER, executorGateway);
 	}

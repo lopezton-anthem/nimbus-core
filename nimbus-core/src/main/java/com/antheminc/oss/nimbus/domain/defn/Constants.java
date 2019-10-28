@@ -37,6 +37,7 @@ public enum Constants {
 	MARKER_COL_PARAM_EXPR("<!col!>"),
 	MARKER_ENV("#env"),
 	MARKER_FN_JSON("json"),
+	MARKER_FN_FIND("find"),
 	
 	
 	SERVER_PAGE_EXP_MARKER("page=y"),

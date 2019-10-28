@@ -34,6 +34,7 @@ import com.antheminc.oss.nimbus.domain.cmd.exec.CommandPathVariableResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.ParamPathExpressionParser;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.ElemIdResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.EnvResolver;
+import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.FindFunctionResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.JsonFunctionResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.KeywordResolver;
 import com.antheminc.oss.nimbus.domain.cmd.exec.internal.keywordresolvers.PlatformMarkerResolver;
@@ -90,6 +91,7 @@ public class DefaultCommandPathVariableResolver implements CommandPathVariableRe
 		registerResolver(new RefIdResolver(Constants.MARKER_REF_ID.code));
 		registerResolver(new ElemIdResolver(Constants.MARKER_ELEM_ID.code));
 		registerResolver(new PlatformMarkerResolver(Constants.SEGMENT_PLATFORM_MARKER.code, executorGateway));
+		registerResolver(new FindFunctionResolver(Constants.MARKER_FN_FIND.code, executorGateway));
 	}
 
 	public void registerResolver(KeywordResolver resolver) {
