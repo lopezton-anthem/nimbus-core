@@ -33,7 +33,7 @@ public final class LockableHandlers {
 	@EventHandler(OnRootParamLock.class)
 	public interface OnRootParamLockHandler<A extends Annotation> extends StateEventHandler<A> {
 		
-		public void handleOnRootParamLock(Param<?> actionParam, DomainEntityLock<?> domainEntityLock);
+		public void handleOnRootParamLock(Param<?> actionParam, DomainEntityLock domainEntityLock);
 	}
 	
 	@EventHandler(OnRootParamUnlock.class)

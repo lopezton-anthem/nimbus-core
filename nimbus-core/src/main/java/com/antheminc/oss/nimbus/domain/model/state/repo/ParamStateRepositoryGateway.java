@@ -85,7 +85,7 @@ public class ParamStateRepositoryGateway implements ParamStateGateway {
 		 */
 		@Override
 		public <P> P _get(Param<P> param) {
-			if(param.getParentModel().findIfRoot() != null) {
+			if(null != param.getParentModel() && param.getParentModel().findIfRoot() != null) {
 				if(param.getParentModel().getConfig().getLock() != null && !param.getParentModel().getConfig().getLock().root()) {
 					domainEntityLockStrategy.evalAndapply(param);
 				}

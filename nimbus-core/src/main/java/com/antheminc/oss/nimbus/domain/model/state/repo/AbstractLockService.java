@@ -29,13 +29,13 @@ import com.antheminc.oss.nimbus.entity.DomainEntityLock;
  */
 public abstract class AbstractLockService implements DomainEntityLockService {
 
-	abstract DomainEntityLock<?> createLockInternal(Param<?> p);
+	abstract DomainEntityLock createLockInternal(Param<?> p);
 	
 	abstract void removeLockInternal(Param<?> p);
 
 	@Override
-	public DomainEntityLock<?> createLock(Param<?> p) {
-		DomainEntityLock<?> domainEntityLock = createLockInternal(p);
+	public DomainEntityLock createLock(Param<?> p) {
+		DomainEntityLock domainEntityLock = createLockInternal(p);
 		
 		// hook up lock events
 		onLockEvent(p, domainEntityLock);
@@ -52,7 +52,7 @@ public abstract class AbstractLockService implements DomainEntityLockService {
 	}
 
 	// TODO : move to runtime.eventDelegate
-	protected static void onLockEvent(Param<?> actionParam, DomainEntityLock<?> domainEntityLock) {
+	protected static void onLockEvent(Param<?> actionParam, DomainEntityLock domainEntityLock) {
 		EventHandlerConfig eventHandlerConfig = actionParam.getConfig().getEventHandlerConfig();
 		if (eventHandlerConfig != null && eventHandlerConfig.getOnRootParamLockAnnotations() != null) {
 			eventHandlerConfig.getOnRootParamLockAnnotations().stream().forEach(ac -> {

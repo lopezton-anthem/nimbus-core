@@ -19,9 +19,8 @@ package com.antheminc.oss.nimbus.entity;
  * @author Tony Lopez
  *
  */
-public interface DomainEntityLock<T> {
+public interface DomainEntityLock {
 
-	T getId();
 	String getDomain();
 	String getLockedBy();
 	String getSessionId();

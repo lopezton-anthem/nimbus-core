@@ -36,7 +36,7 @@ import lombok.ToString;
 @Domain(value="lock", includeListeners={ListenerType.persistence})
 @Repo(alias="lock", value=Database.rep_mongodb)
 @Getter @Setter @ToString(callSuper=true)
-public class LockEntity extends AbstractEntity.IdLong implements DomainEntityLock<Long> {
+public class LockEntity extends AbstractEntity.IdLong implements DomainEntityLock {
 	/**
 	 * 
 	 */

@@ -26,21 +26,21 @@ import com.antheminc.oss.nimbus.entity.DomainEntityLock;
  */
 public class DefaultDomainLockStrategy implements DomainEntityLockStrategy {
 
-	private DomainEntityLockService domainEntityLockProvider;
+	private DomainEntityLockService lockService;
 
 	private SessionProvider sessionProvider;
 
 	@Override
 	public void evalAndapply(Param<?> param) {
 
-		DomainEntityLock<?> lock = domainEntityLockProvider.getLock(param);
+		DomainEntityLock lock = lockService.getLock(param);
 		if (lock != null) {
 			if (sessionProvider.getSessionId().equals(lock.getSessionId())) {
 				throw new FrameworkRuntimeException(
 						"Domain locked for the command " + param.getRootExecution().getRootCommand());
 			}
 		} else {
-			domainEntityLockProvider.createLock(param);
+			lockService.createLock(param);
 
 		}
 

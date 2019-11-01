@@ -24,9 +24,9 @@ import com.antheminc.oss.nimbus.entity.DomainEntityLock;
  */
 public interface DomainEntityLockService {
 
-	DomainEntityLock<?> getLock(Param<?> p);
+	DomainEntityLock getLock(Param<?> p);
 	
-	DomainEntityLock<?> createLock(Param<?> p);
+	DomainEntityLock createLock(Param<?> p);
 
 	void removeLock(Param<?> p);
 }

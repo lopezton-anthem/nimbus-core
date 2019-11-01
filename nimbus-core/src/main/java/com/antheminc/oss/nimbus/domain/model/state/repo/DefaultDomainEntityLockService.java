@@ -15,10 +15,15 @@
  */
 package com.antheminc.oss.nimbus.domain.model.state.repo;
 
-import org.springframework.data.mongodb.core.MongoOperations;
+import java.util.List;
 
+import com.antheminc.oss.nimbus.domain.cmd.Command;
+import com.antheminc.oss.nimbus.domain.cmd.CommandBuilder;
+import com.antheminc.oss.nimbus.domain.cmd.CommandMessage;
+import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecution.MultiOutput;
 import com.antheminc.oss.nimbus.domain.cmd.exec.CommandExecutorGateway;
 import com.antheminc.oss.nimbus.domain.model.state.EntityState.Param;
+import com.antheminc.oss.nimbus.domain.model.state.repo.db.SearchCriteria.QuerySearchCriteria;
 import com.antheminc.oss.nimbus.entity.DomainEntityLock;
 import com.antheminc.oss.nimbus.entity.LockEntity;
 
@@ -29,25 +34,26 @@ import lombok.RequiredArgsConstructor;
  *
  */
 @RequiredArgsConstructor
-public class DefaultMongoDomainLockProvider extends AbstractLockService implements DomainEntityLockService{
+public class DefaultDomainEntityLockService extends AbstractLockService implements DomainEntityLockService {
 
-	private final MongoOperations mongoOps;
-	
+	private final ModelRepository modelRepository;
+
 	private final CommandExecutorGateway commandExecutorGateway;
-	
+
 	@Override
 	public LockEntity getLock(Param<?> p) {
-		return null;
-//		mongoOps.findById(id, entityClass, collectionName)
-//		Command cmd = CommandBuilder.withUri(marker+"/lock/_search?fn=query&where=lock.domain.eq('"+eCtx.toString() +"')").getCommand();
-//		MultiOutput o = commandExecutorGateway.execute(new CommandMessage(cmd, null));
-//		p = (List<LockEntity>) o.getOutputs().get(0).getValue();
-//		if(p)
-//		return p;
+		final String lockDomainAlias = "lock";
+		final String key = p.getRootDomain().getConfig().getAlias() + ":" + p.getRootDomain().getIdParam().getState();
+		StringBuilder queryBuilder = new StringBuilder();
+		queryBuilder.append(lockDomainAlias).append(".domain.eq(").append(key).append(")");
+		QuerySearchCriteria sc = new QuerySearchCriteria();
+		sc.setWhere(sc.toString());
+		sc.setFetch("1");
+		return (LockEntity) modelRepository._search(DomainEntityLock.class, lockDomainAlias, () -> sc);
 	}
 
 	@Override
-	public DomainEntityLock<?> createLockInternal(Param<?> p) {
+	public DomainEntityLock createLockInternal(Param<?> p) {
 		// TODO Auto-generated method stub
 		// mongo insert
 		return null;
@@ -59,6 +65,3 @@ public class DefaultMongoDomainLockProvider extends AbstractLockService implemen
 	}
 
 }
-
-
-

@@ -83,12 +83,14 @@ public class DefaultExecutionContextLoader implements ExecutionContextLoader {
 	@Override
 	public final ExecutionContext load(Command rootDomainCmd) {
 		ExecutionContext eCtx = new ExecutionContext(rootDomainCmd);
-		if(rootDomainCmd.isRootDomainOnly() && (rootDomainCmd.getAction()==Action._nav)) {
-			ModelConfig<?> initialrootDomainConfig = getDomainConfigBuilder().getRootDomainOrThrowEx(eCtx.getCommandMessage().getCommand().getRootDomainAlias());
-			if(initialrootDomainConfig.getLock().root()) {
-				removeLocksOnDomain(eCtx);
-			}
-		}
+		
+//		if(rootDomainCmd.isRootDomainOnly() && (rootDomainCmd.getAction()==Action._nav)) {
+//			ModelConfig<?> initialrootDomainConfig = getDomainConfigBuilder().getRootDomainOrThrowEx(eCtx.getCommandMessage().getCommand().getRootDomainAlias());
+//			if(initialrootDomainConfig.getLock().root()) {
+//				removeLocksOnDomain(eCtx);
+//			}
+//		}
+		
 		// _search: transient - just create shell 
 		if(isTransient(rootDomainCmd)) {
 			QuadModel<?, ?> q = getQuadModelBuilder().build(rootDomainCmd);
